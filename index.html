@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro de Seguimiento · GDR con Propósito 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&family=DM+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --rojo:#C8102E;
+    --rojo-oscuro:#9E0C24;
+    --rojo-tenue:#FBEAED;
+
+    --ambar:#E0A400;
+    --ambar-tenue:#FDF4E0;
+    --verde:#0E9F6E;
+    --verde-tenue:#E6F5EF;
+
+    --plomo:#5A6570;
+    --plomo-medio:#8A9199;
+    --plomo-claro:#E3E6E8;
+    --plomo-fondo:#F2F4F5;
+
+    --azul:#005088;
+    --azul-tenue:#E6EEF4;
+
+    --crema:#F3F0DF;
+    --tinta:#12202B;
+    --linea:#D9DFE3;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'DM Sans',system-ui,sans-serif;background:var(--crema);color:var(--tinta);line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--rojo);margin-bottom:14px}
+  h1{font-family:'Merriweather',serif;font-weight:900;font-size:clamp(24px,3.2vw,32px);line-height:1.2;margin-bottom:12px}
+  h2{font-family:'Merriweather',serif;font-weight:700;font-size:19px;margin-bottom:4px}
+  .lead{color:var(--plomo);font-size:15px}
+
+  /* ===== BANNER ===== */
+  .banner-exclusivo{background:var(--rojo);color:#fff;padding:11px 0;font-size:13px}
+  .banner-exclusivo .wrap{display:flex;gap:10px;align-items:center;justify-content:center;text-align:center}
+  .lock{flex-shrink:0;opacity:.9}
+
+  /* ===== LUZ DE DISPONIBILIDAD ===== */
+  .luz{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--plomo)}
+  .luz-punto{width:8px;height:8px;border-radius:50%;background:var(--plomo-claro);flex-shrink:0}
+  .luz.on .luz-punto{background:var(--verde);box-shadow:0 0 0 3px var(--verde-tenue)}
+  .luz.on{color:var(--verde)}
+
+  /* ===== INGRESO ===== */
+  #ingreso{min-height:calc(100vh - 44px);display:flex;align-items:center;justify-content:center;padding:32px 24px}
+  .card-ingreso{background:#fff;width:100%;max-width:520px;border:1px solid var(--linea);border-radius:4px;padding:40px}
+  label{display:block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--plomo);margin-bottom:8px}
+  input{width:100%;padding:13px 14px;font-size:16px;font-family:'IBM Plex Mono',monospace;letter-spacing:.08em;border:1.5px solid var(--linea);border-radius:3px;background:#fff;color:var(--tinta);transition:border-color .15s}
+  input[type=text]{text-transform:uppercase}
+  input:focus{outline:none;border-color:var(--rojo);box-shadow:0 0 0 3px rgba(200,16,46,.10)}
+  .campo{margin-bottom:20px}
+  .hint{font-size:12.5px;color:var(--plomo-medio);margin-top:7px}
+  .btn{width:100%;padding:15px;font-family:inherit;font-size:15px;font-weight:700;background:var(--rojo);color:#fff;border:none;border-radius:3px;cursor:pointer;transition:background .15s}
+  .btn:hover:not(:disabled){background:var(--rojo-oscuro)}
+  .btn:disabled{background:var(--plomo-claro);color:var(--plomo-medio);cursor:not-allowed}
+  .btn:focus-visible{outline:3px solid var(--rojo);outline-offset:2px}
+  .error{background:var(--rojo-tenue);border-left:3px solid var(--rojo);color:#8F1122;padding:11px 14px;font-size:13.5px;margin-bottom:20px;border-radius:0 3px 3px 0}
+  .estado-ingreso{padding-top:18px;margin-top:24px;border-top:1px solid var(--linea)}
+  .estado-ingreso .cerrado{font-size:12.5px;color:var(--plomo);margin-top:8px;line-height:1.45}
+
+  /* ===== PANEL ===== */
+  #panel{display:none}
+  .encabezado{background:#fff;border-bottom:1px solid var(--linea);padding:30px 0 26px}
+  .enc-fila{display:flex;justify-content:space-between;align-items:flex-start;gap:24px}
+  .entidad-nombre{font-family:'Merriweather',serif;font-weight:900;font-size:clamp(20px,2.6vw,27px);line-height:1.25}
+  .entidad-sigla{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;background:var(--azul-tenue);color:var(--azul);padding:4px 9px;border-radius:2px;margin-bottom:10px;font-weight:500}
+  .objetivo-portal{color:var(--plomo);font-size:14px;margin-top:14px;max-width:640px;line-height:1.5}
+
+  /* ===== CIE (arriba derecha) ===== */
+  .cie-caja{flex-shrink:0;text-align:right;max-width:340px}
+  .cie-cuadro{
+    width:66px;height:66px;border:2px solid var(--plomo-claro);border-radius:4px;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:18px;letter-spacing:.10em;
+    color:var(--plomo-claro);background:#fff;transition:all .3s;
+  }
+  .cie-caja.ok .cie-cuadro{border-color:var(--verde);color:var(--verde);box-shadow:0 0 0 4px var(--verde-tenue)}
+  .cie-estado{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--plomo-medio);margin-top:8px}
+  .cie-caja.ok .cie-estado{color:var(--verde)}
+  .cie-aviso{font-size:12px;color:var(--plomo);margin-top:10px;line-height:1.45;text-align:right}
+  .cie-aviso a{color:var(--rojo);font-weight:500}
+  @media(max-width:860px){
+    .enc-fila{flex-direction:column-reverse;align-items:flex-start}
+    .cie-caja{text-align:left;max-width:100%}
+    .cie-aviso{text-align:left}
+  }
+
+  /* ===== INDICADORES ===== */
+  .indicadores{background:#fff;border:1px solid var(--linea);border-radius:4px;margin:28px 0;display:grid;grid-template-columns:repeat(3,1fr)}
+  .ind{padding:26px 28px;border-right:1px solid var(--linea)}
+  .ind:last-child{border-right:none}
+  .ind-titulo{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--plomo-medio);margin-bottom:14px}
+  .ind-pct{font-family:'Merriweather',serif;font-weight:900;font-size:44px;line-height:1;letter-spacing:-.02em;transition:color .4s}
+  .ind-sub{font-size:13px;color:var(--plomo);margin-top:6px}
+  .barra{height:6px;background:var(--plomo-claro);border-radius:99px;overflow:hidden;margin-top:20px}
+  .barra-fill{height:100%;border-radius:99px;transition:width .5s cubic-bezier(.2,.8,.2,1),background .4s}
+
+  /* Semáforo: rojo 0-30 · ámbar 31-74 · verde 75-100 */
+  .sem-rojo  .ind-pct,.sem-rojo  .s-pct{color:var(--rojo)}
+  .sem-ambar .ind-pct,.sem-ambar .s-pct{color:var(--ambar)}
+  .sem-verde .ind-pct,.sem-verde .s-pct{color:var(--verde)}
+  .sem-rojo  .barra-fill,.sem-rojo  .s-fill{background:var(--rojo)}
+  .sem-ambar .barra-fill,.sem-ambar .s-fill{background:var(--ambar)}
+  .sem-verde .barra-fill,.sem-verde .s-fill{background:var(--verde)}
+
+  /* ===== STICKY ===== */
+  #sticky{position:fixed;top:0;left:0;right:0;z-index:60;background:#fff;border-bottom:1px solid var(--linea);box-shadow:0 1px 14px rgba(0,0,0,.07);transform:translateY(-100%);transition:transform .28s cubic-bezier(.2,.8,.2,1)}
+  #sticky.on{transform:translateY(0)}
+  #sticky .wrap{display:flex;align-items:center;gap:24px;padding-top:11px;padding-bottom:11px}
+  .sticky-sigla{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.11em;color:var(--azul);font-weight:500;flex-shrink:0;padding-right:20px;border-right:1px solid var(--linea)}
+  .sticky-inds{display:flex;gap:24px;flex:1;min-width:0}
+  .s-ind{flex:1;min-width:0}
+  .s-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:5px}
+  .s-lbl{font-size:11px;color:var(--plomo-medio);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .s-pct{font-family:'Merriweather',serif;font-weight:700;font-size:14px;flex-shrink:0;transition:color .4s}
+  .s-barra{height:4px;background:var(--plomo-claro);border-radius:99px;overflow:hidden}
+  .s-fill{height:100%;border-radius:99px;transition:width .5s cubic-bezier(.2,.8,.2,1),background .4s}
+  @media(max-width:820px){.sticky-sigla{display:none}.sticky-inds{gap:14px}}
+
+  /* ===== AVISO FALTANTES ===== */
+  .aviso{background:var(--ambar-tenue);border-left:3px solid var(--ambar);padding:13px 18px;font-size:13.5px;color:#7A5A00;margin-bottom:24px;border-radius:0 3px 3px 0;line-height:1.5}
+  .aviso a{color:#7A5A00;font-weight:600}
+  .aviso-cerrado{background:var(--plomo-fondo);border-left-color:var(--plomo-medio);color:var(--plomo)}
+
+  /* ===== TABLA ===== */
+  .tabla-caja{background:#fff;border:1px solid var(--linea);border-radius:4px;margin-bottom:32px}
+  .tabla-head{padding:22px 26px 18px;border-bottom:1px solid var(--linea)}
+  table{width:100%;border-collapse:collapse}
+  thead th{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--plomo);font-weight:500;text-align:center;padding:13px 10px;background:var(--plomo-fondo);border-bottom:1px solid var(--linea)}
+  thead th.col-nombre{text-align:left;padding-left:26px;width:40%}
+  /* Encabezado pegajoso: la fila de títulos y la de botones bajan con el scroll.
+     Se apoya bajo la barra global de indicadores (#sticky, ~62px) cuando está visible. */
+  thead tr:first-child th{position:sticky;top:62px;z-index:30;background:var(--plomo-fondo)}
+  thead tr.fila-guardar-col th{position:sticky;top:105px;z-index:29;padding:9px 10px;background:var(--plomo-fondo);border-bottom:1px solid var(--linea)}
+  .btn-col{font-family:inherit;font-size:11.5px;font-weight:700;letter-spacing:.02em;background:#fff;color:var(--plomo);border:2px solid var(--linea);border-radius:3px;padding:7px 12px;cursor:pointer;transition:border-color .15s,color .15s;white-space:nowrap;text-transform:none;display:inline-flex;align-items:center;gap:7px}
+  .btn-col .punto{width:8px;height:8px;border-radius:50%;background:var(--plomo-claro);flex:0 0 auto;transition:background .15s}
+  .btn-col:hover:not(:disabled){background:var(--plomo-fondo)}
+  .btn-col:disabled{background:#fff;border-color:var(--linea);color:var(--plomo-claro);cursor:not-allowed}
+  .btn-col:disabled .punto{background:var(--plomo-claro)}
+  .btn-col:focus-visible{outline:3px solid var(--plomo-medio);outline-offset:2px}
+  /* Estado por % de avance de la columna (mismos cortes del semáforo) */
+  .btn-col.est-rojo {border-color:var(--rojo);  color:var(--rojo)}
+  .btn-col.est-rojo  .punto{background:var(--rojo)}
+  .btn-col.est-ambar{border-color:var(--ambar); color:#B07E00}
+  .btn-col.est-ambar .punto{background:var(--ambar)}
+  .btn-col.est-verde{border-color:var(--verde); color:var(--verde)}
+  .btn-col.est-verde .punto{background:var(--verde)}
+  .btn-col.guardando{border-color:var(--plomo-medio);color:var(--plomo-medio)}
+  .btn-col.guardando .punto{background:var(--plomo-medio)}
+  tbody td{padding:13px 10px;border-bottom:1px solid #EEF1F2;text-align:center;vertical-align:middle}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:#FAFBFB}
+  tr.no-hab{background:#FCFCFC}
+  tr.no-hab .nom{color:var(--plomo-medio)}
+  .celda-nombre{text-align:left !important;padding-left:26px !important}
+  .nom{font-size:14px;font-weight:500;line-height:1.35}
+  .puesto{font-size:11.5px;color:var(--plomo-medio);margin-top:2px}
+  .tag-falta{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.06em;background:var(--ambar-tenue);color:#7A5A00;border:1px solid #E8D5A0;padding:2px 7px;border-radius:2px;margin-top:5px}
+  .fila-area td{background:var(--azul-tenue);font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--azul);text-align:left;padding:9px 26px;font-weight:500}
+  .chk{appearance:none;-webkit-appearance:none;width:21px;height:21px;border:1.5px solid var(--plomo-claro);border-radius:3px;cursor:pointer;position:relative;background:#fff;transition:all .12s;vertical-align:middle}
+  .chk:hover:not(:disabled){border-color:var(--verde)}
+  .chk:checked{background:var(--verde);border-color:var(--verde)}
+  .chk:checked::after{content:"";position:absolute;left:6.5px;top:2.5px;width:5px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+  .chk:disabled{background:var(--plomo-fondo);border-color:var(--plomo-claro);cursor:not-allowed;opacity:.55}
+  .chk:disabled:checked{background:var(--plomo-medio);border-color:var(--plomo-medio)}
+  .chk:focus-visible{outline:3px solid var(--verde);outline-offset:2px}
+  .badge-espera{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:9px;background:var(--plomo-fondo);border:1px solid var(--linea);color:var(--plomo-medio);font-size:10px;font-weight:600;letter-spacing:.02em;vertical-align:middle;white-space:nowrap}
+  .col-bloqueada{background:var(--plomo-fondo)}
+
+  /* ===== GUARDAR ===== */
+  .guardar{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--linea);padding:16px 26px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+  .guardar .btn{width:auto;padding:13px 34px}
+  .estado-guardado{font-size:13px;color:var(--plomo-medio)}
+  .estado-guardado.ok{color:var(--verde);font-weight:500}
+  .estado-guardado.err{color:var(--rojo);font-weight:600}
+  footer{padding:34px 0 90px;font-size:12.5px;color:var(--plomo-medio);text-align:center}
+
+  /* ===== BOTÓN DE AYUDA FLOTANTE ===== */
+  #ayuda{position:fixed;right:24px;bottom:24px;z-index:80;display:none;flex-direction:column;align-items:flex-end;gap:12px}
+  #ayuda.on{display:flex}
+  .ayuda-btn{
+    background:var(--rojo);color:#fff;border:none;border-radius:99px;
+    padding:13px 22px;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;
+    box-shadow:0 4px 18px rgba(0,0,0,.18);display:flex;align-items:center;gap:9px;transition:background .15s;
+  }
+  .ayuda-btn:hover{background:var(--rojo-oscuro)}
+  .ayuda-panel{
+    background:#fff;border:1px solid var(--linea);border-radius:6px;padding:22px 24px;
+    max-width:330px;box-shadow:0 8px 32px rgba(0,0,0,.14);
+    display:none;
+  }
+  .ayuda-panel.on{display:block}
+  .ayuda-panel h3{font-family:'Merriweather',serif;font-size:15px;margin-bottom:14px}
+  .ayuda-item{font-size:12.5px;color:var(--plomo);line-height:1.5;padding-bottom:13px;margin-bottom:13px;border-bottom:1px solid var(--linea)}
+  .ayuda-item:last-child{border-bottom:none;padding-bottom:0;margin-bottom:0}
+  .ayuda-item strong{display:block;color:var(--tinta);font-size:12.5px;margin-bottom:3px}
+  .ayuda-item a{color:var(--rojo);font-weight:500}
+  @media(max-width:520px){
+    #ayuda{right:16px;bottom:16px;left:16px;align-items:stretch}
+    .ayuda-panel{max-width:100%}
+  }
+
+  @media(max-width:760px){
+    .indicadores{grid-template-columns:1fr}
+    .ind{border-right:none;border-bottom:1px solid var(--linea)}
+    .ind:last-child{border-bottom:none}
+    thead th.col-nombre{width:auto}
+  }
+</style>
+</head>
+<body>
+
+<div class="banner-exclusivo">
+  <div class="wrap">
+    <svg class="lock" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+      <rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/>
+    </svg>
+    <span>Portal de <strong>uso exclusivo</strong> del Jefe de la Oficina de Recursos Humanos y/o del Gestor del Rendimiento.</span>
+  </div>
+</div>
+
+<!-- STICKY -->
+<div id="sticky">
+  <div class="wrap">
+    <div class="sticky-sigla" id="stSigla"></div>
+    <div class="sticky-inds">
+      <div class="s-ind" id="stI1">
+        <div class="s-top"><div class="s-lbl">1a. evidencia: Avance</div><div class="s-pct" id="stP1">0%</div></div>
+        <div class="s-barra"><div class="s-fill" id="stB1" style="width:0%"></div></div>
+      </div>
+      <div class="s-ind" id="stI2">
+        <div class="s-top"><div class="s-lbl">Ejecución de reunión de Seguimiento</div><div class="s-pct" id="stP2">0%</div></div>
+        <div class="s-barra"><div class="s-fill" id="stB2" style="width:0%"></div></div>
+      </div>
+      <div class="s-ind" id="stI3">
+        <div class="s-top"><div class="s-lbl">2da. evidencia: Final</div><div class="s-pct" id="stP3">0%</div></div>
+        <div class="s-barra"><div class="s-fill" id="stB3" style="width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INGRESO -->
+<section id="ingreso">
+  <div class="card-ingreso">
+    <div class="eyebrow">GDR con Propósito · Ciclo 2026</div>
+    <h1>Registro de Seguimiento</h1>
+    <p class="lead" style="margin-bottom:28px">Marque el cumplimiento de las actividades claves de la etapa de seguimiento, por cada servidor evaluado de su entidad.</p>
+    <div id="errBox"></div>
+    <div class="campo">
+      <label for="sigla">Sigla de la entidad</label>
+      <input type="text" id="sigla" placeholder="EJ. UNCA" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="campo">
+      <label for="clave">Contraseña</label>
+      <input type="password" id="clave" placeholder="••••" autocomplete="off">
+      <div class="hint">Si no cuenta con sus credenciales, comuníquese con su sectorista o escriba a consultasgdr@servir.gob.pe</div>
+    </div>
+    <button class="btn" id="btnEntrar">Ingresar</button>
+    <div class="estado-ingreso">
+      <div class="luz" id="luzIngreso"><span class="luz-punto"></span><span id="luzIngresoTxt">Verificando disponibilidad…</span></div>
+      <div class="cerrado" id="cerradoIngreso" style="display:none"></div>
+    </div>
+  </div>
+</section>
+
+<!-- PANEL -->
+<section id="panel">
+  <div class="encabezado">
+    <div class="wrap">
+      <div class="enc-fila">
+        <div>
+          <div class="entidad-sigla" id="pSigla"></div>
+          <div class="entidad-nombre" id="pEntidad"></div>
+          <p class="objetivo-portal">Portal que permite registrar el avance de cada servidor evaluado durante la etapa de Seguimiento.</p>
+        </div>
+        <div class="cie-caja" id="cieCaja">
+          <div class="cie-cuadro">CIE</div>
+          <div class="cie-estado" id="cieEstado">No formalizado</div>
+          <div class="cie-aviso" id="cieAviso"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="indicadores">
+      <div class="ind" id="i1">
+        <div class="ind-titulo">1a. evidencia: Avance</div>
+        <div class="ind-pct" id="p1">0%</div>
+        <div class="ind-sub" id="s1">0 de 0 evaluados</div>
+        <div class="barra"><div class="barra-fill" id="b1" style="width:0%"></div></div>
+      </div>
+      <div class="ind" id="i2">
+        <div class="ind-titulo">Ejecución de reunión de Seguimiento</div>
+        <div class="ind-pct" id="p2">0%</div>
+        <div class="ind-sub" id="s2">0 de 0 evaluados</div>
+        <div class="barra"><div class="barra-fill" id="b2" style="width:0%"></div></div>
+      </div>
+      <div class="ind" id="i3">
+        <div class="ind-titulo" id="ttlI3">2da. evidencia: Final</div>
+        <div class="ind-pct" id="p3">0%</div>
+        <div class="ind-sub" id="s3">0 de 0 evaluados</div>
+        <div class="barra"><div class="barra-fill" id="b3" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div id="avisoFaltantes"></div>
+    <div id="avisoCerrado"></div>
+
+    <div class="tabla-caja">
+      <div class="tabla-head">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
+          <div>
+            <h2>Servidores evaluados</h2>
+            <p class="lead" style="font-size:13.5px">Marque la casilla cuando la actividad se haya cumplido y pulse: &laquo;Guardar&hellip;&raquo;.</p>
+          </div>
+          <div class="luz" id="luzPanel"><span class="luz-punto"></span><span id="luzPanelTxt"></span></div>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th class="col-nombre">Servidor evaluado</th>
+            <th>1a. evidencia: Avance</th>
+            <th>Reunión de Seguimiento</th>
+            <th id="thCol3">2da. evidencia: Final</th>
+          </tr>
+          <tr class="fila-guardar-col">
+            <th class="col-nombre"></th>
+            <th><button class="btn-col" id="btnCol1" data-campo="ev_avance"><span class="punto"></span>Guardar 1a. evidencia</button></th>
+            <th><button class="btn-col" id="btnCol2" data-campo="reunion"><span class="punto"></span>Guardar reunión</button></th>
+            <th><button class="btn-col" id="btnCol3" data-campo="ev_final"><span class="punto"></span>Guardar 2da. evidencia</button></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div class="guardar">
+        <div class="estado-guardado" id="estadoGuardado">Guarde cada columna por separado, según las evidencias que haya recibido.</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>SERVIR · Gerencia de Desarrollo de Capacidades y Rendimiento del Servicio Civil</footer>
+</section>
+
+<!-- AYUDA FLOTANTE -->
+<div id="ayuda">
+  <div class="ayuda-panel" id="ayudaPanel">
+    <h3>¿Necesitas ayuda?</h3>
+    <div class="ayuda-item">
+      <strong>Dudas sobre cómo registrar</strong>
+      Comunícate con tu sectorista asignado o escribe a <a href="mailto:consultasgdr@servir.gob.pe">consultasgdr@servir.gob.pe</a>
+    </div>
+    <div class="ayuda-item">
+      <strong>Falta un evaluado o cambió alguno</strong>
+      Un servidor no puede agregarse por sí mismo al registro. Si falta alguien en la lista, o un servidor ya no forma parte de tu entidad, comunícalo a tu sectorista o a <a href="mailto:consultasgdr@servir.gob.pe">consultasgdr@servir.gob.pe</a> para actualizarlo.
+    </div>
+  </div>
+  <button class="ayuda-btn" id="ayudaBtn">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+      <circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 015.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+    </svg>
+    ¿Necesitas ayuda? Clic aquí
+  </button>
+</div>
+
+<script>
+var EN_APPS_SCRIPT = (typeof google !== 'undefined' && google.script && google.script.run);
+var CORREO = 'consultasgdr@servir.gob.pe';
+
+/* ---------- MOCK para revisar diseño sin desplegar ---------- */
+var MOCK = {
+  ok:true, sigla:'UNCA', ruc:'20602391583',
+  entidad:'UNIVERSIDAD NACIONAL CIRO ALEGRIA',
+  areas:['UNIDAD DE RECURSOS HUMANOS','DIRECCION GENERAL DE ADMINISTRACION','UNIDAD DE PRESUPESTO'],
+  faltantes:0, correo:CORREO,
+  cie:{tiene:false, detalle:''},
+  config:{abierto:true, evFinalHabilitado:false, mensajeEvFinal:'Disponible próximamente. SERVIR comunicará la fecha de apertura.', mensajeCierre:'La etapa de Seguimiento cerró el 31/12/2026.', fechaCierre:'31/12/2026'},
+  evaluados:[
+    {doc:'43663651',nombre:'DELGADO MONTEZA JUBER JHOEL',area:'DIRECCION GENERAL DE ADMINISTRACION',puesto:'DIRECTOR GENERAL DE ADMINISTRACION',habilitado:true,ev_avance:true,reunion:true,ev_final:true},
+    {doc:'31677081',nombre:'VALVERDE DEXTRE ULDARICO JESUS',area:'UNIDAD DE PRESUPESTO',puesto:'JEFE DE LA UNIDAD DE PRESUPUESTO',habilitado:true,ev_avance:true,reunion:true,ev_final:false},
+    {doc:'45602446',nombre:'GOPIA SANTA CRUZ JULIO JHONATAN',area:'UNIDAD DE RECURSOS HUMANOS',puesto:'JEFE DE LA UNIDAD DE RECURSOS HUMANOS',habilitado:true,ev_avance:true,reunion:false,ev_final:false},
+    {doc:'42630302',nombre:'CIPRIANO FLORES JOSE ROBERTO',area:'UNIDAD DE RECURSOS HUMANOS',puesto:'ESPECIALISTA ADMINISTRATIVO',habilitado:true,ev_avance:true,reunion:false,ev_final:false},
+    {doc:'44938636',nombre:'CASTAÑEDA ESPINOZA IRVING IVAN',area:'UNIDAD DE RECURSOS HUMANOS',puesto:'ESPECIALISTA ADMINISTRATIVO',habilitado:true,ev_avance:false,reunion:false,ev_final:false},
+    {doc:'41092733',nombre:'GOMEZ ANGULO CLARA LISET',area:'UNIDAD DE RECURSOS HUMANOS',puesto:'ESPECIALISTA ADMINISTRATIVO',habilitado:true,ev_avance:false,reunion:false,ev_final:false},
+    {doc:'73084485',nombre:'YSLADO RODRIGUEZ PALMIRA KEYLA',area:'UNIDAD DE RECURSOS HUMANOS',puesto:'ASISTENTE ADMINISTRATIVO',habilitado:true,ev_avance:false,reunion:false,ev_final:false}
+  ]
+};
+
+var D = null, estado = {}, clave = '';
+var $ = function(id){ return document.getElementById(id); };
+
+/* ---------- Semáforo: rojo 0-30 · ámbar 31-74 · verde 75-100 ---------- */
+function semaforo(pct){
+  if(pct <= 30) return 'sem-rojo';
+  if(pct <= 74) return 'sem-ambar';
+  return 'sem-verde';
+}
+function aplicarSemaforo(el, pct){
+  el.classList.remove('sem-rojo','sem-ambar','sem-verde');
+  el.classList.add(semaforo(pct));
+}
+
+/* ---------- Disponibilidad al cargar ---------- */
+function pintarLuzIngreso(cfg){
+  var luz = $('luzIngreso'), txt = $('luzIngresoTxt'), cer = $('cerradoIngreso');
+  if(cfg.abierto){
+    luz.classList.add('on');
+    txt.textContent = 'Registro disponible';
+    cer.style.display = 'none';
+  } else {
+    luz.classList.remove('on');
+    txt.textContent = 'Registro no disponible';
+    cer.style.display = 'block';
+    cer.textContent = cfg.mensajeCierre;
+  }
+}
+
+if(EN_APPS_SCRIPT){
+  google.script.run
+    .withSuccessHandler(pintarLuzIngreso)
+    .withFailureHandler(function(){ $('luzIngresoTxt').textContent = 'No se pudo verificar la disponibilidad'; })
+    .getConfig();
+} else {
+  setTimeout(function(){ pintarLuzIngreso(MOCK.config); }, 200);
+}
+
+/* ---------- INGRESO ---------- */
+$('btnEntrar').addEventListener('click', entrar);
+$('clave').addEventListener('keydown', function(e){ if(e.key==='Enter') entrar(); });
+$('sigla').addEventListener('keydown', function(e){ if(e.key==='Enter') $('clave').focus(); });
+
+function entrar(){
+  var sig = $('sigla').value.trim();
+  var cla = $('clave').value.trim();
+  if(!sig){ mostrarError('Ingrese la sigla de su entidad.'); return; }
+  if(!cla){ mostrarError('Ingrese la contraseña.'); return; }
+
+  $('errBox').innerHTML = '';
+  $('btnEntrar').disabled = true;
+  $('btnEntrar').textContent = 'Verificando…';
+
+  if(EN_APPS_SCRIPT){
+    google.script.run
+      .withSuccessHandler(recibir)
+      .withFailureHandler(function(e){ resetBtn(); mostrarError('Error del servidor: ' + e.message); })
+      .ingresar(sig, cla);
+  } else {
+    setTimeout(function(){
+      if(sig.toUpperCase() !== 'UNCA' || cla !== '1'){
+        resetBtn();
+        mostrarError('Modo demo: use la sigla UNCA y la contraseña 1.');
+        return;
+      }
+      recibir(MOCK);
+    }, 400);
+  }
+}
+function resetBtn(){ $('btnEntrar').disabled=false; $('btnEntrar').textContent='Ingresar'; }
+function mostrarError(m){ $('errBox').innerHTML = '<div class="error">'+m+'</div>'; }
+
+function recibir(r){
+  if(!r || !r.ok){ resetBtn(); mostrarError((r&&r.msg)||'No se pudo cargar la información.'); return; }
+  D = r;
+  clave = $('clave').value.trim();
+  CORREO = r.correo || CORREO;
+
+  D.evaluados.forEach(function(e){
+    e.habilitado = true;
+    estado[e.doc] = { ev_avance:e.ev_avance, reunion:e.reunion, ev_final:e.ev_final };
+  });
+
+  render();
+  $('ingreso').style.display = 'none';
+  $('panel').style.display   = 'block';
+  $('ayuda').classList.add('on');
+  window.scrollTo(0,0);
+}
+
+/* ---------- RENDER ---------- */
+function render(){
+  $('pSigla').textContent   = D.sigla;
+  $('stSigla').textContent  = D.sigla;
+  $('pEntidad').textContent = D.entidad;
+
+  renderCIE();
+  renderLuzPanel();
+  renderAvisos();
+  renderTabla();
+  recalcular();
+}
+
+function renderCIE(){
+  var caja = $('cieCaja');
+  if(D.cie && D.cie.tiene){
+    caja.classList.add('ok');
+    $('cieEstado').textContent = 'Formalizado';
+    $('cieAviso').innerHTML = '';
+  } else {
+    caja.classList.remove('ok');
+    $('cieEstado').textContent = 'No formalizado';
+    $('cieAviso').innerHTML = 'La formalización del Comité Institucional de Evaluación (CIE) será a partir de setiembre 2026';
+  }
+}
+
+function renderLuzPanel(){
+  var luz = $('luzPanel'), txt = $('luzPanelTxt');
+  if(D.config.abierto){
+    luz.classList.add('on');
+    txt.textContent = 'Registro disponible';
+  } else {
+    luz.classList.remove('on');
+    txt.textContent = 'Registro no disponible';
+  }
+}
+
+function renderAvisos(){
+  // Cerrado
+  $('avisoCerrado').innerHTML = D.config.abierto ? ''
+    : '<div class="aviso aviso-cerrado"><strong>Registro cerrado.</strong> ' + D.config.mensajeCierre
+      + ' Puede consultar la información registrada, pero ya no es posible modificarla.</div>';
+
+  // Faltantes: obsoleto con el espejo ARRAYFORMULA (PARTICIPANTES ≡ REGISTRO_SEGUIMIENTO)
+  $('avisoFaltantes').innerHTML = '';
+}
+
+/* La 2da. evidencia (Final) se habilita desde CONFIG (EVIDENCIA_FINAL_HABILITADA). */
+function evFinalOn(){ return !!(D && D.config && D.config.evFinalHabilitado); }
+function msgEvFinal(){
+  return (D && D.config && D.config.mensajeEvFinal)
+    || 'Disponible próximamente. SERVIR comunicará la fecha de apertura.';
+}
+
+function renderTabla(){
+  var tb = $('tbody'), html = '', areaActual = null;
+  var bloqueado = !D.config.abierto;
+  var finalOff  = bloqueado || !evFinalOn();
+
+  D.evaluados.forEach(function(e){
+    if(e.area !== areaActual){
+      areaActual = e.area;
+      html += '<tr class="fila-area"><td colspan="4">'+areaActual+'</td></tr>';
+    }
+    var s = estado[e.doc];
+    var off = bloqueado;
+
+    html += '<tr>'
+      + '<td class="celda-nombre"><div class="nom">'+e.nombre+'</div>'
+      + '<div class="puesto">'+e.puesto+'</div>'
+      + '</td>'
+      + chk(e.doc,'ev_avance',s.ev_avance,off)
+      + chk(e.doc,'reunion',  s.reunion,  off)
+      + chk(e.doc,'ev_final', s.ev_final, finalOff, finalOff && !bloqueado ? msgEvFinal() : '')
+      + '</tr>';
+  });
+  tb.innerHTML = html;
+
+  tb.querySelectorAll('.chk:not(:disabled)').forEach(function(c){
+    c.addEventListener('change', function(){
+      estado[c.dataset.doc][c.dataset.campo] = c.checked;
+      marcarPendiente(c.dataset.campo);
+      recalcular();
+    });
+  });
+
+  $('btnCol1').disabled = bloqueado;
+  $('btnCol2').disabled = bloqueado;
+  $('btnCol3').disabled = finalOff;
+  $('btnCol3').title = finalOff && !bloqueado ? msgEvFinal() : '';
+
+  // Etiqueta de "no habilitada aún" en el indicador y en la cabecera de la columna
+  var badge = evFinalOn() ? '' : '<span class="badge-espera">No habilitada aún</span>';
+  $('ttlI3').innerHTML  = '2da. evidencia: Final' + badge;
+  $('thCol3').innerHTML = '2da. evidencia: Final' + badge;
+  $('thCol3').classList.toggle('col-bloqueada', !evFinalOn());
+
+  if(bloqueado){
+    $('estadoGuardado').textContent = 'El registro está cerrado';
+  } else if(!evFinalOn()){
+    $('estadoGuardado').className = 'estado-guardado';
+    $('estadoGuardado').textContent = '2da. evidencia (Final): ' + msgEvFinal();
+  }
+}
+function chk(doc,campo,val,off,titulo){
+  return '<td' + (off && titulo ? ' class="col-bloqueada"' : '') + '>'
+    + '<input type="checkbox" class="chk" data-doc="'+doc+'" data-campo="'+campo+'"'
+    + (val?' checked':'') + (off?' disabled':'')
+    + (titulo ? ' title="'+titulo+'"' : '') + '></td>';
+}
+
+/* ---------- CÁLCULO ---------- */
+function recalcular(){
+  var hab = D.evaluados.filter(function(e){ return e.habilitado; });
+  var n = hab.length;
+  var c = {ev_avance:0, reunion:0, ev_final:0};
+  hab.forEach(function(e){
+    var s = estado[e.doc];
+    if(s.ev_avance) c.ev_avance++;
+    if(s.reunion)   c.reunion++;
+    if(s.ev_final)  c.ev_final++;
+  });
+  pinta(1, c.ev_avance, n);
+  pinta(2, c.reunion,   n);
+  pinta(3, c.ev_final,  n);
+}
+function pinta(i, hechos, total){
+  var pct = total ? Math.round(hechos/total*100) : 0;
+
+  $('p'+i).textContent = pct + '%';
+  $('s'+i).textContent = hechos + ' de ' + total + ' evaluados';
+  $('b'+i).style.width = pct + '%';
+  aplicarSemaforo($('i'+i), pct);
+
+  $('stP'+i).textContent = pct + '%';
+  $('stB'+i).style.width = pct + '%';
+  aplicarSemaforo($('stI'+i), pct);
+
+  aplicarEstadoBoton($('btnCol'+i), pct);
+}
+/* Clase de color del botón según % (rojo 0-30 · ámbar 31-74 · verde 75-100).
+   No pisa el estado transitorio 'guardando'. */
+function aplicarEstadoBoton(btn, pct){
+  if(!btn || btn.classList.contains('guardando')) return;
+  btn.classList.remove('est-rojo','est-ambar','est-verde');
+  var cls = pct <= 30 ? 'est-rojo' : (pct <= 74 ? 'est-ambar' : 'est-verde');
+  btn.classList.add(cls);
+}
+
+/* ---------- STICKY ---------- */
+window.addEventListener('scroll', function(){
+  var inds = document.querySelector('.indicadores');
+  if(!inds || $('panel').style.display === 'none') return;
+  $('sticky').classList.toggle('on', inds.getBoundingClientRect().bottom < 44);
+}, {passive:true});
+
+/* ---------- AYUDA ---------- */
+$('ayudaBtn').addEventListener('click', function(){
+  $('ayudaPanel').classList.toggle('on');
+});
+document.addEventListener('click', function(e){
+  if(!$('ayuda').contains(e.target)) $('ayudaPanel').classList.remove('on');
+});
+
+/* ---------- GUARDAR POR COLUMNA ---------- */
+/* Mapeo campo -> etiqueta legible y botón */
+var COLS = {
+  ev_avance: {btn:'btnCol1', label:'1a. evidencia: Avance'},
+  reunion:   {btn:'btnCol2', label:'reunión de Seguimiento'},
+  ev_final:  {btn:'btnCol3', label:'2da. evidencia: Final'}
+};
+
+/* Marca visualmente que una columna tiene cambios sin guardar */
+function marcarPendiente(campo){
+  var b = $(COLS[campo].btn);
+  b.classList.remove('ok');
+  $('estadoGuardado').className = 'estado-guardado';
+  $('estadoGuardado').textContent = 'Cambios sin guardar en: ' + COLS[campo].label;
+}
+
+/* Envía SOLO una columna, para todos los evaluados habilitados de esta entidad.
+   El estado completo (marcados y no marcados) reemplaza la versión anterior de esa columna. */
+function guardarColumna(campo){
+  var conf = COLS[campo];
+  var btn  = $(conf.btn);
+  if(btn.disabled) return;
+  if(campo === 'ev_final' && !evFinalOn()) return;
+
+  btn.disabled = true;
+  btn.classList.add('guardando');
+  var htmlOrig = btn.innerHTML;
+  btn.innerHTML = '<span class="punto"></span>Guardando…';
+
+  // Estado íntegro de la columna: cada evaluado habilitado con su valor actual (true/false)
+  var items = D.evaluados
+    .filter(function(e){ return e.habilitado; })
+    .map(function(e){ return {doc:e.doc, valor:estado[e.doc][campo]}; });
+
+  function ok(r){
+    btn.disabled = !D.config.abierto || (campo === 'ev_final' && !evFinalOn());
+    btn.classList.remove('guardando');
+    btn.innerHTML = htmlOrig;
+    recalcular();
+    if(r && r.ok){
+      $('estadoGuardado').className = 'estado-guardado ok';
+      $('estadoGuardado').textContent = '✓ ' + conf.label + ' · ' + r.guardados
+        + ' evaluado' + (r.guardados===1?'':'s') + ' actualizado' + (r.guardados===1?'':'s')
+        + ' · ' + (r.fecha || new Date().toLocaleString('es-PE'));
+    } else {
+      $('estadoGuardado').className = 'estado-guardado err';
+      $('estadoGuardado').textContent = (r && r.msg) ? r.msg : 'No se pudo guardar ' + conf.label + '.';
+    }
+  }
+
+  if(EN_APPS_SCRIPT){
+    google.script.run
+      .withSuccessHandler(ok)
+      .withFailureHandler(function(e){ ok({ok:false,msg:e.message}); })
+      .guardarColumna(D.sigla, clave, campo, items);
+  } else {
+    setTimeout(function(){ ok({ok:true, guardados:items.length, fecha:new Date().toLocaleString('es-PE')}); }, 500);
+  }
+}
+
+$('btnCol1').addEventListener('click', function(){ guardarColumna('ev_avance'); });
+$('btnCol2').addEventListener('click', function(){ guardarColumna('reunion');   });
+$('btnCol3').addEventListener('click', function(){ guardarColumna('ev_final');  });
+</script>
+</body>
+</html>
