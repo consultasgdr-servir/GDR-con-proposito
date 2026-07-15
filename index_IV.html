@@ -372,8 +372,31 @@
 </div>
 
 <script>
-var EN_APPS_SCRIPT = (typeof google !== 'undefined' && google.script && google.script.run);
+/* ============================================================
+   BACKEND · Apps Script (doPost)
+   Si cambias la implementación y te dan otra /exec, actualiza SOLO esta línea.
+   ============================================================ */
+var API = 'https://script.google.com/macros/s/AKfycbzg0DfI7DrjwKJwgVvX0ep6vAA5h40JWokyzLjOLgN4IyP7tl6iYRhRrXWEugk2N0LcYw/exec';
+
+/* Modo demo: agrega ?demo=1 a la URL para probar el diseño sin backend. */
+var DEMO = /[?&]demo=1/.test(location.search);
+
 var CORREO = 'consultasgdr@servir.gob.pe';
+
+/* Llamada al backend. text/plain evita el preflight CORS de Apps Script. */
+function api(payload){
+  return fetch(API, {
+    method: 'POST',
+    headers: {'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(payload),
+    redirect: 'follow'
+  })
+  .then(function(r){ return r.text(); })
+  .then(function(t){
+    try { return JSON.parse(t); }
+    catch(e){ return {ok:false, msg:'Respuesta no válida del servidor.'}; }
+  });
+}
 
 /* ---------- MOCK para revisar diseño sin desplegar ---------- */
 var MOCK = {
@@ -423,13 +446,15 @@ function pintarLuzIngreso(cfg){
   }
 }
 
-if(EN_APPS_SCRIPT){
-  google.script.run
-    .withSuccessHandler(pintarLuzIngreso)
-    .withFailureHandler(function(){ $('luzIngresoTxt').textContent = 'No se pudo verificar la disponibilidad'; })
-    .getConfig();
-} else {
+if(DEMO){
   setTimeout(function(){ pintarLuzIngreso(MOCK.config); }, 200);
+} else {
+  api({accion:'config'})
+    .then(function(r){
+      if(r && r.ok && r.config) pintarLuzIngreso(r.config);
+      else $('luzIngresoTxt').textContent = 'No se pudo verificar la disponibilidad';
+    })
+    .catch(function(){ $('luzIngresoTxt').textContent = 'No se pudo verificar la disponibilidad'; });
 }
 
 /* ---------- INGRESO ---------- */
@@ -447,12 +472,7 @@ function entrar(){
   $('btnEntrar').disabled = true;
   $('btnEntrar').textContent = 'Verificando…';
 
-  if(EN_APPS_SCRIPT){
-    google.script.run
-      .withSuccessHandler(recibir)
-      .withFailureHandler(function(e){ resetBtn(); mostrarError('Error del servidor: ' + e.message); })
-      .ingresar(sig, cla);
-  } else {
+  if(DEMO){
     setTimeout(function(){
       if(sig.toUpperCase() !== 'UNCA' || cla !== '1'){
         resetBtn();
@@ -461,7 +481,12 @@ function entrar(){
       }
       recibir(MOCK);
     }, 400);
+    return;
   }
+
+  api({accion:'ingresar', sigla:sig, clave:cla})
+    .then(recibir)
+    .catch(function(e){ resetBtn(); mostrarError('No se pudo conectar con el servidor. Verifique su conexión.'); });
 }
 function resetBtn(){ $('btnEntrar').disabled=false; $('btnEntrar').textContent='Ingresar'; }
 function mostrarError(m){ $('errBox').innerHTML = '<div class="error">'+m+'</div>'; }
@@ -698,14 +723,14 @@ function guardarColumna(campo){
     }
   }
 
-  if(EN_APPS_SCRIPT){
-    google.script.run
-      .withSuccessHandler(ok)
-      .withFailureHandler(function(e){ ok({ok:false,msg:e.message}); })
-      .guardarColumna(D.sigla, clave, campo, items);
-  } else {
+  if(DEMO){
     setTimeout(function(){ ok({ok:true, guardados:items.length, fecha:new Date().toLocaleString('es-PE')}); }, 500);
+    return;
   }
+
+  api({accion:'guardar', sigla:D.sigla, clave:clave, campo:campo, items:items})
+    .then(ok)
+    .catch(function(e){ ok({ok:false, msg:'No se pudo conectar con el servidor.'}); });
 }
 
 $('btnCol1').addEventListener('click', function(){ guardarColumna('ev_avance'); });
